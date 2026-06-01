@@ -62,7 +62,7 @@ IEEE-CIS Fraud Detection (Kaggle)
 - [x] Day 1 — 590,540 transactions explored (3.5% fraud rate, product C = 11.69% fraud)
 - [x] Day 2 — XGBoost trained (ROC-AUC 0.90, 88.2% precision) — 7,355 high-risk transactions flagged
 - [x] Day 3 — SHAP explainability — top fraud driver: C1/C8 transaction count anomalies
-- [ ] Day 4 — Groq LLM explanation reports
+- [x] Day 4 — Groq LLM analyst reports — 100% precision on top flagged transactions
 - [ ] Day 5 — Streamlit app + deployment
 
 ## How to Run
