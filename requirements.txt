@@ -1,11 +1,11 @@
+streamlit
 pandas
 numpy
-scikit-learn
+plotly
 xgboost
 shap
-plotly
-streamlit
+joblib
 groq
 python-dotenv
-joblib
+scikit-learn
 imbalanced-learn
