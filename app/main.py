@@ -43,17 +43,19 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ── LOAD DATA ──────────────────────────────────────────────────
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 @st.cache_data
 def load_data():
-    predictions = pd.read_csv('outputs/fraud_predictions.csv')
-    reports = pd.read_csv('outputs/fraud_reports.csv')
-    shap_values = pd.read_csv('outputs/shap_values.csv')
-    feature_cols = joblib.load('models/feature_cols.pkl')
+    predictions = pd.read_csv(os.path.join(BASE_DIR, 'outputs/fraud_predictions.csv'))
+    reports = pd.read_csv(os.path.join(BASE_DIR, 'outputs/fraud_reports.csv'))
+    shap_values = pd.read_csv(os.path.join(BASE_DIR, 'outputs/shap_values.csv'))
+    feature_cols = joblib.load(os.path.join(BASE_DIR, 'models/feature_cols.pkl'))
     return predictions, reports, shap_values, feature_cols
 
 @st.cache_resource
 def load_model():
-    return joblib.load('models/fraud_model.pkl')
+    return joblib.load(os.path.join(BASE_DIR, 'models/fraud_model.pkl'))
 
 predictions, reports, shap_values, feature_cols = load_data()
 model = load_model()
