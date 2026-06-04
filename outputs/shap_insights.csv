@@ -1,0 +1,2 @@
+insight_1,insight_2,insight_3,insight_4,insight_5
+Time signals are more predictive than transaction amount,C-fields explain 24% of model decisions,Email mismatch less predictive than expected — 83% of legit transactions have mismatches,Fraud transactions have consistently higher C1/C8 SHAP values,Product C is structurally higher risk — 11.69% fraud rate

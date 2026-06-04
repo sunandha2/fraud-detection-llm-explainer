@@ -9,3 +9,5 @@ groq
 python-dotenv
 scikit-learn
 imbalanced-learn
+fastapi
+uvicorn
