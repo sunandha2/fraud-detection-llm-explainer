@@ -1,81 +1,51 @@
-TransactionID,TransactionAmt,ProductCD,isFraud,fraud_probability,llm_report
-3405227,73.954,C,1,0.9809887,"## RISK ASSESSMENT
-The transaction has a critical risk level with a 98.1% fraud probability, driven by a high-risk product category (C) and high transaction count fields (C1, C8). The main pattern detected is a stolen card signal.
-
-## KEY EVIDENCE
-High C1 and C8 values increase fraud risk, with SHAP impacts of 1.786 and 1.233, respectively. The $73.95 transaction amount and hour of transaction also contribute to the risk.
-
-## RECOMMENDED ACTION
-Block the card and contact the cardholder immediately."
-3388943,42.294,C,1,0.9761671,"## RISK ASSESSMENT
-The transaction has a CRITICAL risk level with a 97.6% fraud probability, driven by the high-risk Product Category C. The main pattern detected is a stolen card signal, indicated by high C1 and C8 counts.
-
-## KEY EVIDENCE
-The high C1 and C8 counts, with SHAP impacts of 2.125 and 1.133, respectively, are key evidence of fraud risk. The hour of the transaction also increases fraud risk, with a SHAP impact of 0.659.
-
-## RECOMMENDED ACTION
-The fraud team should immediately block the card and contact the cardholder to verify the transaction."
-2992234,83.742,C,1,0.9733752,"## RISK ASSESSMENT
-The transaction has a CRITICAL risk level, with a 97.3% fraud probability. The main pattern detected is a high-risk Product C category.
-
-## KEY EVIDENCE
-High C1 and C8 counts increase fraud risk, with SHAP impacts of 1.781 and 1.075. The $83.74 transaction amount and Product C category also contribute to the high risk.
-
-## RECOMMENDED ACTION
-Block the card and contact the cardholder immediately due to the confirmed fraud label and high-risk pattern."
-3369036,15.951,C,1,0.9524776,"## RISK ASSESSMENT
-The transaction has a CRITICAL risk level with a 95.2% fraud probability, driven by the high-risk Product Category C. The main pattern detected is a stolen card signal, indicated by high C1 and C8 counts.
-
-## KEY EVIDENCE
-The high C1 and C8 counts, with SHAP impacts of 1.825 and 1.359, respectively, are key evidence of fraud risk. The transaction amount of $15.95 is relatively low, but the high fraud probability and Product Category C override this.
-
-## RECOMMENDED ACTION
-Block the card and contact the cardholder immediately to verify the transaction and prevent further potential fraud."
-3405217,73.954,C,1,0.93090194,"## RISK ASSESSMENT
-The transaction has a critical risk level with a 93.1% fraud probability. The main pattern detected is a high-risk product category (Product C) with a high fraud rate.
-
-## KEY EVIDENCE
-The high C8 count (impact: 1.080) and hour of transaction (impact: 0.810) drive this flag. The $73.95 transaction amount is also suspicious.
-
-## RECOMMENDED ACTION
-Block the card and contact the cardholder immediately due to confirmed fraud."
-3114080,200.0,S,1,0.8971474,"## RISK ASSESSMENT
-The transaction has a critical risk level with an 89.7% fraud probability. The main pattern detected is a high-risk category due to the product category S and high transaction amount.
-
-## KEY EVIDENCE
-The high C8 count (impact: 0.960) and C1 count (impact: 0.672) drive this flag. The transaction amount of $200 also increases fraud risk (impact: 0.585).
-
-## RECOMMENDED ACTION
-The fraud team should immediately block the card and contact the cardholder due to the confirmed fraud label and high-risk signals."
-3206312,11.963,C,1,0.8888868,"## RISK ASSESSMENT
-The transaction has a critical risk level with an 88.9% fraud probability, driven by a high-risk product category (Product C) pattern. This pattern is indicative of a potentially stolen card.
-
-## KEY EVIDENCE
-High C8 and C1 counts increase fraud risk, with SHAP impacts of 0.825 and 0.684, respectively. The $11.96 transaction amount has a decreasing effect on fraud risk, with a SHAP impact of 0.741.
-
-## RECOMMENDED ACTION
-The fraud team should immediately block the card and contact the cardholder to verify the transaction."
-3203262,12.809,C,1,0.8416024,"## RISK ASSESSMENT
-The transaction has a critical risk level with an 84.2% fraud probability, driven by the high-risk Product C category. The main pattern detected is a stolen card signal due to high C1 counts.
-
-## KEY EVIDENCE
-The high C1 count (impact: 0.906) and card3 (impact: 0.883) significantly increase the fraud risk. The transaction amount ($12.81) has a lower impact (0.699) but still contributes to the overall risk.
-
-## RECOMMENDED ACTION
-The fraud team should immediately block the card and contact the cardholder to verify the transaction."
-3279032,450.0,H,1,0.7950925,"## RISK ASSESSMENT
-The transaction has a HIGH risk level with a 79.5% fraud probability. The main pattern detected is a high-risk product category with an unusually high transaction amount.
-
-## KEY EVIDENCE
-The $450 transaction amount increases fraud risk, with a SHAP impact of 0.872. The hour of the transaction also increases fraud risk, with a SHAP impact of 0.668.
-
-## RECOMMENDED ACTION
-The fraud team should flag this transaction for manual review within 1 hour due to its HIGH risk level."
-3411489,77.0,W,1,0.7927302,"## RISK ASSESSMENT
-The transaction has a HIGH risk level with a 79.3% fraud probability. The main pattern detected is a high-risk transaction on a weekend.
-
-## KEY EVIDENCE
-The SHAP analysis reveals that day_of_week and hour increase fraud risk. The transaction amount of $77.00 and Product Category W also contribute.
-
-## RECOMMENDED ACTION
-The fraud team should flag this transaction for manual review within 1 hour due to its HIGH risk level."
+TransactionID,TransactionAmt,ProductCD,isFraud,fraud_probability,llm_report,pattern,confidence,action,evidence,analyst_note
+3405227,73.954,C,1,0.9809887,"PATTERN: VELOCITY_FRAUD
+EVIDENCE: C1 and C8 both ranking as top SHAP drivers simultaneously means the card is being used across many transactions rapidly — this is the fingerprint of a stolen card that has been sold and is being drained before cancellation. The high SHAP impact of these features, combined with the product category C, indicates a high-risk transaction. The low amount of $73.95 suggests the fraudster is attempting to fly under the radar.
+CONFIDENCE: HIGH — Three or more SHAP drivers, including C1, C8, and hour, align with the VELOCITY_FRAUD pattern, indicating a strong signal.
+ACTION: Block card silently, flag for 24-hour monitoring
+ANALYST_NOTE: The fact that the transaction occurred during the day, rather than at night, may indicate that the fraudster is attempting to blend in with legitimate transactions, highlighting the need for continued monitoring of card activity outside of typical high-risk hours.",VELOCITY_FRAUD,HIGH,"Block card silently, flag for 24-hour monitoring","C1 and C8 both ranking as top SHAP drivers simultaneously means the card is being used across many transactions rapidly — this is the fingerprint of a stolen card that has been sold and is being drained before cancellation. The high SHAP impact of these features, combined with the product category C, indicates a high-risk transaction. The low amount of $73.95 suggests the fraudster is attempting to fly under the radar.","The fact that the transaction occurred during the day, rather than at night, may indicate that the fraudster is attempting to blend in with legitimate transactions, highlighting the need for continued monitoring of card activity outside of typical high-risk hours."
+3388943,42.294,C,1,0.9761671,"PATTERN: VELOCITY_FRAUD
+EVIDENCE: The combination of high C1 and C8 SHAP impacts indicates that the card is being used across many transactions rapidly, suggesting a stolen card that has been sold and is being drained before cancellation. The fact that Product C, a high-risk category, is involved further supports this pattern. The low transaction amount of $42.29 is consistent with a fraudster attempting to quickly drain the card.
+CONFIDENCE: HIGH — Three SHAP drivers (C1, C8, and hour) align with the VELOCITY_FRAUD pattern, indicating a strong signal.
+ACTION: Block card silently, flag for 24-hour monitoring
+ANALYST_NOTE: The fact that the fraudster is using a high-risk product category and attempting to drain the card quickly suggests that they may be trying to maximize their gains before the card is cancelled, and the team should prioritize monitoring for similar transactions on other cards.",VELOCITY_FRAUD,HIGH,"Block card silently, flag for 24-hour monitoring","The combination of high C1 and C8 SHAP impacts indicates that the card is being used across many transactions rapidly, suggesting a stolen card that has been sold and is being drained before cancellation. The fact that Product C, a high-risk category, is involved further supports this pattern. The low transaction amount of $42.29 is consistent with a fraudster attempting to quickly drain the card.","The fact that the fraudster is using a high-risk product category and attempting to drain the card quickly suggests that they may be trying to maximize their gains before the card is cancelled, and the team should prioritize monitoring for similar transactions on other cards."
+2992234,83.742,C,1,0.9733752,"PATTERN: VELOCITY_FRAUD
+EVIDENCE: The combination of high C1 and C8 SHAP impacts indicates that the card is being used across many transactions rapidly, suggesting a stolen card that has been sold and is being drained before cancellation. The fact that Product C, a high-risk category, is involved further supports this pattern. The low transaction amount of $83.74 may be an attempt to avoid detection while still exploiting the stolen card.
+CONFIDENCE: HIGH — Three SHAP drivers (C1, C8, and card3) align with the VELOCITY_FRAUD pattern, indicating a strong signal.
+ACTION: Block card silently, flag for 24-hour monitoring
+ANALYST_NOTE: The fact that the fraudster is using a high-risk product category and attempting to drain the card quickly suggests that they may have obtained the card information through a large-scale data breach, and we should review recent breach reports to identify potential connections.",VELOCITY_FRAUD,HIGH,"Block card silently, flag for 24-hour monitoring","The combination of high C1 and C8 SHAP impacts indicates that the card is being used across many transactions rapidly, suggesting a stolen card that has been sold and is being drained before cancellation. The fact that Product C, a high-risk category, is involved further supports this pattern. The low transaction amount of $83.74 may be an attempt to avoid detection while still exploiting the stolen card.","The fact that the fraudster is using a high-risk product category and attempting to drain the card quickly suggests that they may have obtained the card information through a large-scale data breach, and we should review recent breach reports to identify potential connections."
+3369036,15.951,C,1,0.9524776,"PATTERN: VELOCITY_FRAUD
+EVIDENCE: The combination of high C1 and C8 SHAP impacts indicates that the card is being used across many transactions rapidly, suggesting a stolen card that has been sold and is being drained before cancellation. The low transaction amount of $15.95 further supports this, as fraudsters often use small transactions to test the card's validity before making larger purchases. This pattern of behavior is consistent with a velocity fraud attack.
+CONFIDENCE: HIGH — Three or more SHAP drivers, including C1, C8, and day_of_week, align with the velocity fraud pattern, indicating a high degree of confidence in this classification.
+ACTION: Block card silently, flag for 24-hour monitoring
+ANALYST_NOTE: The fact that the product category is C, which has the highest fraud rate, and the transaction is occurring during the day, suggests that the fraudster may be attempting to blend in with legitimate transactions, highlighting the need for continued monitoring of this product category for similar patterns of behavior.",VELOCITY_FRAUD,HIGH,"Block card silently, flag for 24-hour monitoring","The combination of high C1 and C8 SHAP impacts indicates that the card is being used across many transactions rapidly, suggesting a stolen card that has been sold and is being drained before cancellation. The low transaction amount of $15.95 further supports this, as fraudsters often use small transactions to test the card's validity before making larger purchases. This pattern of behavior is consistent with a velocity fraud attack.","The fact that the product category is C, which has the highest fraud rate, and the transaction is occurring during the day, suggests that the fraudster may be attempting to blend in with legitimate transactions, highlighting the need for continued monitoring of this product category for similar patterns of behavior."
+3405217,73.954,C,1,0.93090194,"PATTERN: VELOCITY_FRAUD
+EVIDENCE: The combination of high C1 and C8 SHAP impacts indicates that the card is being used across many transactions rapidly, suggesting a stolen card that has been sold and is being drained before cancellation. The fact that both C1 and C8 are top drivers implies an unusually high transaction velocity, which is a strong indicator of velocity fraud. This pattern is further supported by the high fraud probability and the product category being the highest risk.
+CONFIDENCE: HIGH — Three SHAP drivers (C1, C8, and hour) align with the velocity fraud pattern, indicating a high confidence level in this classification.
+ACTION: Block card silently, flag for 24-hour monitoring
+ANALYST_NOTE: The fact that the transaction amount is relatively low ($73.95) may indicate that the fraudster is attempting to fly under the radar, but the high transaction velocity suggests that the card is being used in an automated or scripted manner, which should be investigated further.",VELOCITY_FRAUD,HIGH,"Block card silently, flag for 24-hour monitoring","The combination of high C1 and C8 SHAP impacts indicates that the card is being used across many transactions rapidly, suggesting a stolen card that has been sold and is being drained before cancellation. The fact that both C1 and C8 are top drivers implies an unusually high transaction velocity, which is a strong indicator of velocity fraud. This pattern is further supported by the high fraud probability and the product category being the highest risk.","The fact that the transaction amount is relatively low ($73.95) may indicate that the fraudster is attempting to fly under the radar, but the high transaction velocity suggests that the card is being used in an automated or scripted manner, which should be investigated further."
+3114080,200.0,S,1,0.8971474,"PATTERN: VELOCITY_FRAUD
+EVIDENCE: The combination of high C1 and C8 SHAP impacts indicates that the card is being used across many transactions rapidly, suggesting a stolen card that has been sold and is being drained before cancellation. The high TransactionAmt also supports this, as the fraudster is attempting to maximize the value extracted from the card. This pattern is consistent with a stolen card being used in a velocity fraud scheme.
+CONFIDENCE: HIGH — Three SHAP drivers (C1, C8, and TransactionAmt) align with the VELOCITY_FRAUD pattern, indicating a strong signal.
+ACTION: Block card immediately, call cardholder within 1 hour
+ANALYST_NOTE: The fact that the fraudster is using the card during the day and for a relatively low amount ($200) may indicate that they are trying to avoid detection by blending in with legitimate transactions, highlighting the need for continued monitoring of card activity.",VELOCITY_FRAUD,HIGH,"Block card immediately, call cardholder within 1 hour","The combination of high C1 and C8 SHAP impacts indicates that the card is being used across many transactions rapidly, suggesting a stolen card that has been sold and is being drained before cancellation. The high TransactionAmt also supports this, as the fraudster is attempting to maximize the value extracted from the card. This pattern is consistent with a stolen card being used in a velocity fraud scheme.","The fact that the fraudster is using the card during the day and for a relatively low amount ($200) may indicate that they are trying to avoid detection by blending in with legitimate transactions, highlighting the need for continued monitoring of card activity."
+3206312,11.963,C,1,0.8888868,"PATTERN: VELOCITY_FRAUD
+EVIDENCE: The combination of high C1 and C8 SHAP impacts indicates that the card is being used across many transactions rapidly, suggesting a stolen card that is being drained before cancellation. The low transaction amount of $11.96 may be an attempt to avoid detection, but the high velocity of transactions is the dominant signal. This pattern is consistent with a stolen card being used to make multiple small purchases.
+CONFIDENCE: HIGH — Three SHAP drivers (C1, C8, and card3) align with the VELOCITY_FRAUD pattern, indicating a strong signal.
+ACTION: Block card silently, flag for 24-hour monitoring
+ANALYST_NOTE: The fact that the fraudster is using the card to make small purchases suggests that they may be trying to avoid detection, but the high velocity of transactions makes it likely that they will continue to use the card until it is blocked, so close monitoring is necessary to prevent further losses.",VELOCITY_FRAUD,HIGH,"Block card silently, flag for 24-hour monitoring","The combination of high C1 and C8 SHAP impacts indicates that the card is being used across many transactions rapidly, suggesting a stolen card that is being drained before cancellation. The low transaction amount of $11.96 may be an attempt to avoid detection, but the high velocity of transactions is the dominant signal. This pattern is consistent with a stolen card being used to make multiple small purchases.","The fact that the fraudster is using the card to make small purchases suggests that they may be trying to avoid detection, but the high velocity of transactions makes it likely that they will continue to use the card until it is blocked, so close monitoring is necessary to prevent further losses."
+3203262,12.809,C,1,0.8416024,"PATTERN: CARD_TESTING
+EVIDENCE: The combination of a low transaction amount ($12.81) and a high C1 SHAP impact (0.906) suggests that the fraudster is testing the validity of a stolen card with a small transaction, attempting to avoid detection. This pattern is further supported by the product category being C, which has the highest fraud rate. The low amount and high transaction count signal indicate a testing scenario rather than a full-scale fraudulent transaction.
+CONFIDENCE: HIGH — The alignment of the low transaction amount, high C1 SHAP impact, and high-risk product category all support the CARD_TESTING pattern.
+ACTION: Block card silently, flag account for 24-hour monitoring
+ANALYST_NOTE: The fact that the fraudster is testing with such a low amount may indicate they are using automated tools to validate card numbers, suggesting a larger-scale operation that warrants closer monitoring of similar transactions.",CARD_TESTING,HIGH,"Block card silently, flag account for 24-hour monitoring","The combination of a low transaction amount ($12.81) and a high C1 SHAP impact (0.906) suggests that the fraudster is testing the validity of a stolen card with a small transaction, attempting to avoid detection. This pattern is further supported by the product category being C, which has the highest fraud rate. The low amount and high transaction count signal indicate a testing scenario rather than a full-scale fraudulent transaction.","The fact that the fraudster is testing with such a low amount may indicate they are using automated tools to validate card numbers, suggesting a larger-scale operation that warrants closer monitoring of similar transactions."
+3279032,450.0,H,1,0.7950925,"PATTERN: UNKNOWN_PATTERN
+EVIDENCE: The combination of signals, including a high transaction amount and the product category being 'H', does not clearly align with any specific fraud pattern, as the top SHAP drivers such as 'is_weekend', 'TransactionAmt', and 'day_of_week' are increasing fraud risk but do not point to a single known pattern like velocity fraud or card testing. The lack of dominant C1 or C8 SHAP impact and the absence of night transaction also contradict the organized fraud ring pattern. This mix of signals suggests an unknown or complex fraud pattern.
+CONFIDENCE: LOW — The confidence is low because the signals are mixed and do not clearly align with any of the defined fraud patterns, making it difficult to pinpoint the exact nature of the fraud.
+ACTION: Flag for manual review within 4 hours, do not auto-block
+ANALYST_NOTE: The fact that the transaction occurred during the day and on a product category with a medium-high risk level suggests the fraudster may be attempting to blend in with regular transactions, warranting a closer look at similar transactions in this product category to identify potential patterns or trends.",UNKNOWN_PATTERN,LOW,"Flag for manual review within 4 hours, do not auto-block","The combination of signals, including a high transaction amount and the product category being 'H', does not clearly align with any specific fraud pattern, as the top SHAP drivers such as 'is_weekend', 'TransactionAmt', and 'day_of_week' are increasing fraud risk but do not point to a single known pattern like velocity fraud or card testing. The lack of dominant C1 or C8 SHAP impact and the absence of night transaction also contradict the organized fraud ring pattern. This mix of signals suggests an unknown or complex fraud pattern.","The fact that the transaction occurred during the day and on a product category with a medium-high risk level suggests the fraudster may be attempting to blend in with regular transactions, warranting a closer look at similar transactions in this product category to identify potential patterns or trends."
+3411489,77.0,W,1,0.7927302,"PATTERN: UNKNOWN_PATTERN
+EVIDENCE: The combination of signals in this transaction is contradictory, with no single dominant SHAP driver and a mix of increasing and decreasing fraud risk factors, making it difficult to classify the fraud pattern. The low amount of $77 and the product category W, which has a lower risk, do not align with typical high-risk fraud patterns. The presence of day_of_week and hour as top SHAP drivers increasing fraud risk, while is_weekend decreases it, adds to the complexity.
+CONFIDENCE: LOW — The signals are mixed and do not clearly align with any specific fraud pattern, leading to low confidence in the classification.
+ACTION: Flag for manual review within 4 hours, do not auto-block
+ANALYST_NOTE: The fact that this transaction was confirmed as fraud despite the low amount and lack of clear high-risk signals suggests that the fraudster may be using a sophisticated method to evade detection, and the team should be vigilant for similar transactions in the future.",UNKNOWN_PATTERN,LOW,"Flag for manual review within 4 hours, do not auto-block","The combination of signals in this transaction is contradictory, with no single dominant SHAP driver and a mix of increasing and decreasing fraud risk factors, making it difficult to classify the fraud pattern. The low amount of $77 and the product category W, which has a lower risk, do not align with typical high-risk fraud patterns. The presence of day_of_week and hour as top SHAP drivers increasing fraud risk, while is_weekend decreases it, adds to the complexity.","The fact that this transaction was confirmed as fraud despite the low amount and lack of clear high-risk signals suggests that the fraudster may be using a sophisticated method to evade detection, and the team should be vigilant for similar transactions in the future."

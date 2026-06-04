@@ -4,8 +4,9 @@ import joblib
 import numpy as np
 import pandas as pd
 import os
-
-os.chdir(r'C:\Users\sunandha\Downloads\gitdemo\fraud-detection-llm-explainer')
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if os.path.exists(project_root):
+    os.chdir(project_root)
 
 app = FastAPI(
     title="Fraud Detection API",

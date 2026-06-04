@@ -11,8 +11,9 @@ import joblib
 import warnings
 import os
 warnings.filterwarnings('ignore')
-
-os.chdir(r'C:\Users\sunandha\Downloads\gitdemo\fraud-detection-llm-explainer')
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if os.path.exists(project_root):
+    os.chdir(project_root)
 
 print("=" * 60)
 print("MODEL COMPARISON — Fraud Detection")

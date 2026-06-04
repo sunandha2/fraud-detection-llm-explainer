@@ -37,6 +37,7 @@ st.markdown("""
     .report-box { background: #111118; border-left: 4px solid #4fc3f7;
                   border-radius: 6px; padding: 16px; margin: 12px 0;
                   font-size: 14px; line-height: 1.7; color: #ddd; }
+    .pattern-badge { font-size: 16px; font-weight: bold; margin-bottom: 8px; }
     h1, h2, h3 { color: white !important; }
 </style>
 """, unsafe_allow_html=True)
@@ -56,6 +57,16 @@ def load_model():
 
 predictions, reports, shap_values, feature_cols = load_data()
 model = load_model()
+
+# ── PATTERN COLORS (used in Page 3) ───────────────────────────
+PATTERN_COLORS = {
+    'VELOCITY_FRAUD':       '#e74c3c',
+    'ORGANIZED_FRAUD_RING': '#e74c3c',
+    'CARD_TESTING':         '#f39c12',
+    'ACCOUNT_TAKEOVER':     '#f39c12',
+    'FRIENDLY_FRAUD':       '#2ecc71',
+    'UNKNOWN_PATTERN':      '#888888',
+}
 
 # ── SIDEBAR ────────────────────────────────────────────────────
 with st.sidebar:
@@ -179,7 +190,7 @@ if "Overview" in page:
             text='fraud_rate'
         )
         fig2.update_traces(texttemplate='%{text:.1f}%',
-                          textposition='outside')
+                           textposition='outside')
         fig2.update_layout(
             plot_bgcolor='#111118',
             paper_bgcolor='#0a0a0f',
@@ -213,7 +224,6 @@ elif "Explorer" in page:
     st.markdown("*Search any transaction and see its fraud analysis*")
     st.markdown("---")
 
-    # Filter options
     col1, col2, col3 = st.columns(3)
     with col1:
         risk_filter = st.selectbox(
@@ -262,19 +272,16 @@ elif "Explorer" in page:
 # ── PAGE 3: AI ANALYST REPORT ─────────────────────────────────
 elif "AI Analyst" in page:
     st.markdown("# AI Analyst Reports")
-    st.markdown("*Groq LLM converts SHAP values into plain-English fraud analysis*")
+    st.markdown("*Groq LLM classifies fraud patterns from SHAP value combinations*")
     st.markdown("---")
 
-    # Show pre-generated reports
+    # ── PRE-GENERATED REPORTS ─────────────────────────────────
     st.markdown("### Pre-Generated Reports — Top 10 High Risk")
 
     for _, report in reports.iterrows():
-        risk_color = "#e74c3c" if report['fraud_probability'] > 0.8 \
-                     else "#f39c12"
-        actual = "CONFIRMED FRAUD" if report['isFraud'] == 1 \
-                 else "LEGITIMATE"
-        actual_color = "#e74c3c" if report['isFraud'] == 1 \
-                       else "#2ecc71"
+        actual = "CONFIRMED FRAUD" if report['isFraud'] == 1 else "LEGITIMATE"
+        pattern = report.get('pattern', 'UNKNOWN_PATTERN')
+        pcolor = PATTERN_COLORS.get(pattern, '#4fc3f7')
 
         with st.expander(
             f"Transaction {report['TransactionID']} — "
@@ -283,14 +290,29 @@ elif "AI Analyst" in page:
             f"{report['fraud_probability']:.1%} risk | "
             f"{actual}"
         ):
+            # Pattern badge
+            st.markdown(
+                f"<div class='pattern-badge' style='color:{pcolor}'>"
+                f"⚠️ {pattern.replace('_', ' ')}</div>",
+                unsafe_allow_html=True
+            )
+
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown(f"**Confidence:** {report.get('confidence', 'N/A')}")
+            with col2:
+                st.markdown(f"**Action:** {report.get('action', 'N/A')}")
+
             st.markdown(f"""
             <div class="report-box">
                 {report['llm_report']}
             </div>""", unsafe_allow_html=True)
 
     st.markdown("---")
+
+    # ── LIVE REPORT GENERATOR ─────────────────────────────────
     st.markdown("### Generate Fresh Report")
-    st.markdown("*Enter a Transaction ID to generate a live LLM report*")
+    st.markdown("*Enter a Transaction ID to generate a live pattern classification*")
 
     trans_input = st.text_input(
         "Transaction ID",
@@ -308,12 +330,12 @@ elif "AI Analyst" in page:
                 if trans_data.empty:
                     st.error("Transaction ID not found in sample dataset")
                 else:
-                    with st.spinner("Groq LLM analyzing transaction..."):
+                    with st.spinner("Groq LLM classifying fraud pattern..."):
                         trans_row = trans_data.iloc[0]
 
-                        # Get SHAP factors
+                        # Build SHAP factors
                         shap_cols = [c for c in shap_values.columns
-                                    if c.startswith('shap_')]
+                                     if c.startswith('shap_')]
                         factors = []
                         for col in shap_cols:
                             feature_name = col.replace('shap_', '')
@@ -335,38 +357,117 @@ elif "AI Analyst" in page:
                             for f in top_factors
                         ])
 
-                        groq_key = st.secrets.get(
-                            "GROQ_API_KEY",
-                            os.getenv("GROQ_API_KEY")
-                        ) if hasattr(st, 'secrets') else \
-                            os.getenv("GROQ_API_KEY")
+                        # Extract key signals for pattern reasoning
+                        c1_impact = next((abs(f['shap_value']) for f in top_factors
+                                          if f['feature'] == 'C1'), 0)
+                        c8_impact = next((abs(f['shap_value']) for f in top_factors
+                                          if f['feature'] == 'C8'), 0)
+                        is_night = int(trans_row.get('is_night', 0))
+                        product = trans_row.get('ProductCD', 'Unknown')
+                        amount = float(trans_row['TransactionAmt'])
 
-                        groq_client = Groq(api_key=groq_key)
-                        response = groq_client.chat.completions.create(
-                            model="llama-3.3-70b-versatile",
-                            messages=[{"role": "user", "content": f"""
-You are a senior fraud analyst.
-Transaction ID: {trans_id}
-Amount: ${trans_row['TransactionAmt']:.2f}
-Product: {trans_row['ProductCD']}
-Fraud Probability: {trans_row['fraud_probability']:.1%}
-Actual: {'FRAUD' if trans_row['isFraud']==1 else 'LEGITIMATE'}
-
-Top SHAP factors:
-{shap_text}
-
-Write a 3-section fraud analyst report:
-1. RISK ASSESSMENT (2 sentences)
-2. KEY EVIDENCE (2 sentences)
-3. RECOMMENDED ACTION (1 sentence)
-Keep under 120 words."""}],
-                            max_tokens=200,
-                            temperature=0.2
+                        # Get API key — Streamlit secrets first, .env fallback
+                        groq_key = (
+                            st.secrets.get("GROQ_API_KEY", os.getenv("GROQ_API_KEY"))
+                            if hasattr(st, 'secrets')
+                            else os.getenv("GROQ_API_KEY")
                         )
 
-                        fresh_report = response.choices[
-                            0
-                        ].message.content.strip()
+                        groq_client = Groq(api_key=groq_key)
+
+                        response = groq_client.chat.completions.create(
+                            model="llama-3.3-70b-versatile",
+                            messages=[
+                                {
+                                    "role": "system",
+                                    "content": (
+                                        "You are a senior fraud analyst. Always respond "
+                                        "in the exact 5-line format requested: PATTERN, "
+                                        "EVIDENCE, CONFIDENCE, ACTION, ANALYST_NOTE. "
+                                        "Never add preamble or extra text before PATTERN:."
+                                    )
+                                },
+                                {
+                                    "role": "user",
+                                    "content": f"""
+You are a senior fraud analyst. Classify the fraud pattern from SHAP value combinations.
+
+TRANSACTION:
+- ID: {trans_id}
+- Amount: ${amount:.2f}
+- Product: {product} ({'HIGHEST RISK' if product == 'C' else 'standard risk'})
+- Fraud Probability: {trans_row['fraud_probability']:.1%}
+- Time: {'NIGHT' if is_night == 1 else 'DAY'}
+- Actual: {'CONFIRMED FRAUD' if trans_row['isFraud'] == 1 else 'LEGITIMATE'}
+
+TOP SHAP DRIVERS:
+{shap_text}
+
+Key signal strengths: C1 impact={c1_impact:.3f}, C8 impact={c8_impact:.3f}, Amount=${amount:.2f}
+
+CLASSIFY as exactly ONE pattern:
+- VELOCITY_FRAUD: C1 or C8 SHAP impact dominates (>0.3) — stolen card being drained
+- CARD_TESTING: amount under $100 AND high C1/C8 impact — testing stolen card validity
+- ORGANIZED_FRAUD_RING: night + Product C + amount over $200 all present together
+- ACCOUNT_TAKEOVER: email_match or addr features dominate SHAP — identity mismatch
+- FRIENDLY_FRAUD: no single SHAP feature dominates, borderline probability
+- UNKNOWN_PATTERN: signals contradict each other
+
+CONFIDENCE: HIGH (3+ signals align) / MEDIUM (2 align) / LOW (mixed)
+
+ACTION rules:
+- VELOCITY_FRAUD + amount>$200: Block card immediately, call cardholder within 1 hour
+- VELOCITY_FRAUD + amount<=$200: Block card silently, flag for 24-hour monitoring
+- CARD_TESTING: Block card silently, flag account for 24-hour monitoring
+- ORGANIZED_FRAUD_RING: Block immediately + escalate to fraud investigation team
+- ACCOUNT_TAKEOVER: Do not block — flag for identity verification within 2 hours
+- FRIENDLY_FRAUD or LOW confidence: Flag for manual review within 4 hours, do not auto-block
+
+RESPOND IN EXACTLY THIS FORMAT:
+PATTERN: [pattern name]
+EVIDENCE: [2-3 sentences on what the COMBINATION of signals means]
+CONFIDENCE: [HIGH/MEDIUM/LOW] — [one sentence why]
+ACTION: [exact action]
+ANALYST_NOTE: [one insight not obvious from the raw numbers]"""
+                                }
+                            ],
+                            max_tokens=350,
+                            temperature=0.1
+                        )
+
+                        fresh_report = response.choices[0].message.content.strip()
+
+                        # Parse structured fields
+                        lines = fresh_report.split('\n')
+                        pattern = next(
+                            (l.replace('PATTERN:', '').strip()
+                             for l in lines if l.startswith('PATTERN:')),
+                            'UNKNOWN_PATTERN'
+                        )
+                        confidence = next(
+                            (l.replace('CONFIDENCE:', '').strip()
+                             for l in lines if l.startswith('CONFIDENCE:')),
+                            'N/A'
+                        )
+                        action = next(
+                            (l.replace('ACTION:', '').strip()
+                             for l in lines if l.startswith('ACTION:')),
+                            'N/A'
+                        )
+
+                        pcolor = PATTERN_COLORS.get(pattern, '#4fc3f7')
+
+                        # Display
+                        st.markdown(
+                            f"<h3 style='color:{pcolor}'>⚠️ {pattern.replace('_', ' ')}</h3>",
+                            unsafe_allow_html=True
+                        )
+
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            st.markdown(f"**Confidence:** {confidence}")
+                        with col2:
+                            st.markdown(f"**Action:** {action}")
 
                         st.markdown(f"""
                         <div class="report-box">
@@ -385,9 +486,7 @@ elif "Insights" in page:
     col1, col2 = st.columns(2)
 
     with col1:
-        # SHAP global importance
-        shap_cols = [c for c in shap_values.columns
-                    if c.startswith('shap_')]
+        shap_cols = [c for c in shap_values.columns if c.startswith('shap_')]
         mean_shap = shap_values[shap_cols].abs().mean()
         importance_df = pd.DataFrame({
             'feature': [c.replace('shap_', '') for c in shap_cols],
@@ -413,7 +512,6 @@ elif "Insights" in page:
         st.plotly_chart(fig3, use_container_width=True)
 
     with col2:
-        # Fraud probability distribution
         fig4 = px.histogram(
             predictions,
             x='fraud_probability',
@@ -434,7 +532,6 @@ elif "Insights" in page:
         )
         st.plotly_chart(fig4, use_container_width=True)
 
-    # Model metrics
     st.markdown("---")
     st.markdown("### Model Performance")
 
