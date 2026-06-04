@@ -4,7 +4,7 @@
 > Groq LLM writes plain-English analyst reports.
 
 ## Live Demo
-🔗 *(deploying — link coming soon)*
+🔗 https://fraud-detection-llm-explainer-ivvbpnmpvrfwhuy2mlyhjz.streamlit.app/
 
 ## The Problem
 Fraud detection models flag transactions but compliance
@@ -57,6 +57,59 @@ IEEE-CIS Fraud Detection (Kaggle)
 - 20,663 fraudulent (3.5% fraud rate)
 - 45 engineered features
 - Real e-commerce payment data
+
+## Model Comparison
+| Model | ROC-AUC | Precision | Recall | F1 |
+|---|---|---|---|---|
+| XGBoost | 0.88 | 0.77 | 0.27 | 0.40 |
+| Random Forest | 0.84 | 0.70 | 0.19 | 0.30 |
+| Logistic Regression | 0.72 | 0.59 | 0.10 | 0.18 |
+
+XGBoost won on every metric. Key reasons:
+- Handles class imbalance better than Logistic Regression
+- Captures non-linear transaction patterns
+- Native SHAP compatibility
+- Fastest inference on large datasets
+
+## SHAP Key Insights
+1. **Time beats amount**: Time signals are 2x more predictive
+   than transaction amount — WHEN matters more than HOW MUCH
+2. **C-fields dominate**: Transaction count fields explain 24%
+   of all model decisions — stolen cards get used repeatedly
+3. **Email mismatch misleads**: 83% of LEGITIMATE transactions
+   have mismatched email domains — model correctly ignores this
+4. **Product C structural risk**: 4.4x more likely flagged
+   than Product W — aligns with 11.69% raw fraud rate
+5. **Night transactions**: is_night ranked #3 globally —
+   fraudsters operate when victims sleep
+
+## REST API
+The model is served as a REST API using FastAPI:
+- GET /health — health check
+- POST /predict — returns fraud probability + recommendation
+- GET /docs — interactive API documentation
+
+Example request:
+```json
+{
+  "TransactionAmt": 450.00,
+  "ProductCD": "C",
+  "card4": "discover",
+  "hour": 2.0,
+  "is_night": 1,
+  "C1": 108,
+  "C8": 100
+}
+```
+
+Example response:
+```json
+{
+  "fraud_probability": 0.5168,
+  "risk_level": "MEDIUM",
+  "recommendation": "Flag for manual review within 1 hour"
+}
+```
 
 ## Key Findings
 - Product C: 11.69% fraud rate — highest risk
