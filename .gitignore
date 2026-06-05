@@ -5,3 +5,8 @@ __pycache__/
 data/
 models/*.bin
 .streamlit/secrets.toml
+mlflow.db
+mlruns/
+Dockerfile
+.dockerignore
+.github/
