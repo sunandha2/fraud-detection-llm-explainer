@@ -7,6 +7,13 @@
 [![Dataset](https://img.shields.io/badge/Dataset-IEEE--CIS%20Kaggle-20BEFF)](https://www.kaggle.com/c/ieee-fraud-detection)
 
 ---
+<img width="1845" height="790" alt="image" src="https://github.com/user-attachments/assets/96d4bcd7-95a4-4a18-88db-baa67889e8a5" />
+<img width="1884" height="773" alt="image" src="https://github.com/user-attachments/assets/45c4e8e4-aac2-4a03-8e29-61e1a1488ee2" />
+<img width="1897" height="738" alt="image" src="https://github.com/user-attachments/assets/dff8606b-c3d3-4594-baf5-16be234335c4" />
+<img width="1861" height="783" alt="image" src="https://github.com/user-attachments/assets/7cd79a40-f841-4b6c-8c9a-5e23d7309c8e" />
+
+
+
 
 ## The Problem
 
